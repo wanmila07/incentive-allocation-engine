@@ -155,4 +155,3 @@ cython_debug/
 data/.DS_Store
 
 data/raw/
-data/processed/
