@@ -47,12 +47,19 @@ Explore business rankings, score distributions, and Pareto trade-offs interactiv
 incentive-allocation-engine/
 
 ├── app/
+
 │   └── dashboard.py        # Streamlit dashboard
+
 ├── data/
+
 │   └── processed/
+
 │       ├── scored_dataset.csv        # Synthetic demo data
+
 │       └── generate_synthetic.py     # Synthetic data generator
+
 ├── requirements.txt
+
 └── README.md
 
 
