@@ -46,8 +46,9 @@ st.divider()
 st.subheader(f"Top {top_n} Businesses by {objective.replace('_score','').capitalize()}")
 
 top_df = df.nlargest(top_n, objective)[
-    ["idstd", "efficiency_score", "equity_score", "sustainability_score", "dominant_objective"]
+    ["business_name", "efficiency_score", "equity_score", "sustainability_score", "dominant_objective"]
 ].reset_index(drop=True)
+top_df.index = top_df.index + 1
 
 st.dataframe(top_df, use_container_width=True)
 
@@ -62,7 +63,7 @@ fig1 = px.scatter(
     y="equity_score",
     color="dominant_objective",
     size="sustainability_score",
-    hover_data=["idstd"],
+    hover_data=["business_name"],
     title="Efficiency vs Equity (size = Sustainability)",
     template="plotly_dark"
 )
@@ -97,7 +98,6 @@ fig5 = px.pie(
     title="Businesses by Dominant Objective",
     template="plotly_dark"
 )
-
 st.plotly_chart(fig5, use_container_width=True)
 
 # ── Budget Simulator ──────────────────────────────────────────────────────────
@@ -122,19 +122,16 @@ else:
     if total_weight != 100:
         st.warning(f"Weights sum to {total_weight}%. They will be normalised automatically.")
 
-    # Normalise weights
     w_e = w_efficiency / total_weight
     w_q = w_equity / total_weight
     w_s = w_sustainability / total_weight
 
-    # Composite score
     df["composite_score"] = (
         w_e * df["efficiency_score"] +
         w_q * df["equity_score"] +
         w_s * df["sustainability_score"]
     )
 
-    # Budget input
     st.markdown("---")
     total_budget = st.number_input(
         "Total Incentive Budget (RM)",
@@ -147,37 +144,32 @@ else:
 
     top_n_budget = st.slider("Number of Businesses to Fund", 10, 500, 100, step=10)
 
-    # Allocate
     funded_df = df.nlargest(top_n_budget, "composite_score").copy()
     funded_df["allocation_rm"] = (
         funded_df["composite_score"] / funded_df["composite_score"].sum() * total_budget
     ).round(2)
 
-    # Summary metrics
     st.markdown("---")
     col_b1, col_b2, col_b3 = st.columns(3)
     col_b1.metric("Businesses Funded", f"{top_n_budget:,}")
     col_b2.metric("Avg Allocation (RM)", f"RM {funded_df['allocation_rm'].mean():,.2f}")
     col_b3.metric("Total Allocated (RM)", f"RM {funded_df['allocation_rm'].sum():,.2f}")
 
-    # Results table
     st.subheader("Allocation Results")
-    st.dataframe(
-        funded_df[["idstd", "efficiency_score", "equity_score",
-                   "sustainability_score", "composite_score",
-                   "dominant_objective", "allocation_rm"]].reset_index(drop=True),
-        use_container_width=True
-    )
+    results_df = funded_df[["business_name", "efficiency_score", "equity_score",
+                             "sustainability_score", "composite_score",
+                             "dominant_objective", "allocation_rm"]].reset_index(drop=True)
+    results_df.index = results_df.index + 1
+    st.dataframe(results_df, use_container_width=True)
 
-    # Bar chart — top 20
     st.subheader("Top 20 Businesses by Allocation")
     fig6 = px.bar(
         funded_df.head(20),
-        x="idstd",
+        x="business_name",
         y="allocation_rm",
         color="dominant_objective",
         title="Incentive Allocation per Business (Top 20)",
-        labels={"allocation_rm": "Allocation (RM)", "idstd": "Business ID"},
+        labels={"allocation_rm": "Allocation (RM)", "business_name": "Business"},
         template="plotly_dark"
     )
     st.plotly_chart(fig6, use_container_width=True)
