@@ -18,7 +18,7 @@ def load_data():
 df = load_data()
 
 # ── Header ────────────────────────────────────────────────────────────────────
-st.title("🏭 SME Incentive Allocation Engine")
+st.title(" SME Incentive Allocation Engine")
 st.markdown("Multi-objective optimization dashboard for informal sector business incentive distribution.")
 st.divider()
 
@@ -154,6 +154,8 @@ else:
     col_b1.metric("Businesses Funded", f"{top_n_budget:,}")
     col_b2.metric("Avg Allocation (RM)", f"RM {funded_df['allocation_rm'].mean():,.2f}")
     col_b3.metric("Total Allocated (RM)", f"RM {funded_df['allocation_rm'].sum():,.2f}")
+
+    st.info(" **Note:** This dashboard uses synthetic data generated to mirror the statistical properties of World Bank ISES 2023 (5,352 informal enterprises). Research was conducted on the licensed dataset.")
 
     st.subheader("Allocation Results")
     results_df = funded_df[["business_name", "efficiency_score", "equity_score",
